@@ -1,0 +1,59 @@
+version: "3.4"
+
+services:
+  php:
+    volumes:
+      - ./conf/php-fpm/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./code:/var/www/html
+      # If you want only to mount themes, plugins and uploads
+      # - ./code/wp-content/themes:/var/www/html/wp-content/themes
+      # - ./code/wp-content/plugins:/var/www/html/wp-content/plugins
+      # - ./code/wp-content/uploads:/var/www/html/wp-content/uploads
+
+  nginx:
+    labels:
+      - traefik.backend=$DOMAIN
+      - traefik.domain=$DOMAIN
+      - traefik.frontend.rule=Host:$DOMAIN
+      - traefik.enable=true
+      - traefik.port=80
+    networks:
+      - internal
+      - web
+    # Remove below ports and use Traefik instead in production
+    ports:
+      - 80:80
+    volumes:
+      - ./code:/var/www/html
+
+  db:
+    volumes:
+      - ./data:/var/lib/mysql
+
+  # Use this for production!
+  # traefik:
+  #   image: traefik:alpine
+  #   networks:
+  #     - web
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - ./traefik.toml:/traefik.toml
+  #     - ./acme.json:/acme.json
+
+  adminer:
+    image: adminer
+    networks:
+      - internal
+    # Beware of this port shouldn't be exposed in the production environment
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+networks:
+  internal:
+    external: false
+  web:
+    external: true

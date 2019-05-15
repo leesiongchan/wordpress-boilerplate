@@ -1,4 +1,4 @@
-# Wordpress Boilerplate
+# WordPress Boilerplate
 
 Very simple boilerplate to get your WordPress up without crying!
 
